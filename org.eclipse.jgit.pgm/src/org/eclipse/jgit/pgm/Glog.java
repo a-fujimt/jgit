@@ -85,6 +85,12 @@ class Glog extends RevWalkTextBuiltin {
 
 	/** {@inheritDoc} */
 	@Override
+	protected void showOneline(RevCommit c) throws Exception {
+		throw new UnsupportedOperationException();
+	}
+
+	/** {@inheritDoc} */
+	@Override
 	protected RevWalk createWalk() {
 		if (objects)
 			throw die(CLIText.get().cannotUseObjectsWithGlog);

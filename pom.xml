@@ -465,6 +465,7 @@
           <encoding>${project.build.sourceEncoding}</encoding>
           <quiet>true</quiet>
           <excludePackageNames>org.eclipse.jgit.http.test</excludePackageNames>
+          <source>8</source>
           <links>
             <link>http://docs.oracle.com/javase/8/docs/api</link>
           </links>

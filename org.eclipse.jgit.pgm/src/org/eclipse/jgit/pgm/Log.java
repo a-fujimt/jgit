@@ -252,6 +252,14 @@ class Log extends RevWalkTextBuiltin {
 		outw.flush();
 	}
 
+	/** {@inheritDoc} */
+	@Override
+	protected void showOneline(RevCommit c) throws Exception {
+		c.getId().copyTo(outbuffer, outw);
+		outw.println(" " + c.getShortMessage());
+		outw.flush();
+	}
+
 	/**
 	 * @param c
 	 * @return <code>true</code> if at least one note was printed,

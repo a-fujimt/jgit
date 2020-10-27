@@ -114,6 +114,9 @@ abstract class RevWalkTextBuiltin extends TextBuiltin {
 	@Option(name = "--max-count", aliases = "-n", metaVar = "metaVar_n")
 	private int maxCount = -1;
 
+	@Option(name = "--oneline")
+	boolean oneline = false;
+
 	/** {@inheritDoc} */
 	@Override
 	protected void run() throws Exception {
@@ -203,7 +206,10 @@ abstract class RevWalkTextBuiltin extends TextBuiltin {
 		for (RevCommit c : walk) {
 			if (++n > maxCount && maxCount >= 0)
 				break;
-			show(c);
+			if (oneline)
+				showOneline(c);
+			else
+				show(c);
 		}
 		if (walk instanceof ObjectWalk) {
 			final ObjectWalk ow = (ObjectWalk) walk;
@@ -211,7 +217,10 @@ abstract class RevWalkTextBuiltin extends TextBuiltin {
 				final RevObject obj = ow.nextObject();
 				if (obj == null)
 					break;
-				show(ow, obj);
+				if (oneline)
+					showOneline(ow, obj);
+				else
+					show(ow, obj);
 			}
 		}
 		return n;
@@ -244,6 +253,36 @@ abstract class RevWalkTextBuiltin extends TextBuiltin {
 	 */
 	protected void show(final ObjectWalk objectWalk,
 			final RevObject currentObject) throws Exception {
+		// Do nothing by default. Most applications cannot show an object.
+	}
+
+	/**
+	 * "ShowOnline" the current RevCommit when called from the main processing loop.
+	 * <p>
+	 * Implement this methods to define the behavior for subclasses of
+	 * RevWalkTextBuiltin.
+	 *
+	 * @param c
+	 *            The current {@link org.eclipse.jgit.revwalk.RevCommit}
+	 * @throws java.lang.Exception
+	 */
+	protected abstract void showOneline(RevCommit c) throws Exception;
+
+	/**
+	 * "ShowOnline" the current RevCommit when called from the main processing loop.
+	 * <p>
+	 * The default implementation does nothing because most subclasses only
+	 * process RevCommits.
+	 *
+	 * @param objectWalk
+	 *            the {@link org.eclipse.jgit.revwalk.ObjectWalk} used by
+	 *            {@link #walkLoop()}
+	 * @param currentObject
+	 *            The current {@link org.eclipse.jgit.revwalk.RevObject}
+	 * @throws java.lang.Exception
+	 */
+	protected void showOneline(final ObjectWalk objectWalk,
+						final RevObject currentObject) throws Exception {
 		// Do nothing by default. Most applications cannot show an object.
 	}
 }
