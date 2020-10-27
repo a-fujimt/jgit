@@ -147,8 +147,8 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <maven.build.timestamp.format>yyyyMMddHHmm</maven.build.timestamp.format>
-    <maven.compiler.source>1.8</maven.compiler.source>
-    <maven.compiler.target>1.8</maven.compiler.target>
+    <maven.compiler.source>11</maven.compiler.source>
+    <maven.compiler.target>11</maven.compiler.target>
     <bundle-manifest>${project.build.directory}/META-INF/MANIFEST.MF</bundle-manifest>
 
     <jgit-last-release-version>5.8.0.202006091008-r</jgit-last-release-version>
@@ -465,6 +465,7 @@
           <encoding>${project.build.sourceEncoding}</encoding>
           <quiet>true</quiet>
           <excludePackageNames>org.eclipse.jgit.http.test</excludePackageNames>
+          <source>8</source>
           <links>
             <link>http://docs.oracle.com/javase/8/docs/api</link>
           </links>

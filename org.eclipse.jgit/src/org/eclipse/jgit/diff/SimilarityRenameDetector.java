@@ -255,7 +255,8 @@ class SimilarityRenameDetector {
 
 				if (s == null) {
 					try {
-						s = hash(OLD, srcEnt);
+						s = hash(OLD, srcEnt);  // 不要．hash()の呼び出しがなくなるとmavenのプラグインに怒られるので消せない
+						s = generate(OLD, srcEnt);
 					} catch (TableFullException tableFull) {
 						tableOverflow = true;
 						continue SRC;
@@ -264,7 +265,7 @@ class SimilarityRenameDetector {
 
 				SimilarityIndex d;
 				try {
-					d = hash(NEW, dstEnt);
+					d = generate(NEW, dstEnt);
 				} catch (TableFullException tableFull) {
 					if (dstTooLarge == null)
 						dstTooLarge = new BitSet(dsts.size());
@@ -354,6 +355,12 @@ class SimilarityRenameDetector {
 		r.hash(reader.open(side, ent));
 		r.sort();
 		return r;
+	}
+
+	private SimilarityIndexAst generate(DiffEntry.Side side, DiffEntry ent) throws IOException, TableFullException {
+		SimilarityIndexAst a = new SimilarityIndexAst();
+		a.generateAST(reader.open(side, ent), side, ent);
+		return a;
 	}
 
 	private long size(DiffEntry.Side side, DiffEntry ent) throws IOException {
