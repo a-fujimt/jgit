@@ -48,4 +48,20 @@ class RevList extends RevWalkTextBuiltin {
 		outw.println();
 
 	}
+
+	/** {@inheritDoc} */
+	@Override
+	protected void showOneline(RevCommit c) throws Exception {
+		if (c.has(RevFlag.UNINTERESTING))
+			outw.print('-');
+		c.getId().copyTo(outbuffer, outw);
+		if (parents)
+			for (int i = 0; i < c.getParentCount(); i++) {
+				outw.print(' ');
+				c.getParent(i).getId().copyTo(outbuffer, outw);
+			}
+		outw.println();
+	}
+
+
 }
