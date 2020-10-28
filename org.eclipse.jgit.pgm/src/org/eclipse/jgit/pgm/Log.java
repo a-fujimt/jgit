@@ -257,6 +257,12 @@ class Log extends RevWalkTextBuiltin {
 	protected void showOneline(RevCommit c) throws Exception {
 		c.getId().copyTo(outbuffer, outw);
 		outw.println(" " + c.getShortMessage());
+
+		if (showNotes(c))
+			outw.println();
+
+		if (c.getParentCount() <= 1 && (showNameAndStatusOnly || showPatch))
+			showDiff(c);
 		outw.flush();
 	}
 
@@ -339,6 +345,5 @@ class Log extends RevWalkTextBuiltin {
 			diffFmt.format(a, b);
 			diffFmt.flush();
 		}
-		outw.println();
 	}
 }
