@@ -546,6 +546,10 @@ public class DiffFormatter implements AutoCloseable {
 
 		} else if (renameDetector != null)
 			files = detectRenames(files);
+		else {
+			setDetectRenames(true);
+			files = detectRenames(files);
+		}
 
 		return files;
 	}
