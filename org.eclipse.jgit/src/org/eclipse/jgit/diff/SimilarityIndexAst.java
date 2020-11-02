@@ -50,7 +50,7 @@ public class SimilarityIndexAst extends SimilarityIndex {
                 MappingStore mappings = defaultMatcher.match(tree, dstTree);
                 EditScriptGenerator editScriptGenerator = new SimplifiedChawatheScriptGenerator();
                 EditScript actions = editScriptGenerator.computeActions(mappings);
-                return (1 - actions.size() / (tree.getMetrics().size + dstTree.getMetrics().size)) * maxScore;
+                return (int) ((1 - ((double)actions.size() / (double)(tree.getMetrics().size + dstTree.getMetrics().size))) * maxScore);
             }
         }
         return super.score(dst, maxScore);
