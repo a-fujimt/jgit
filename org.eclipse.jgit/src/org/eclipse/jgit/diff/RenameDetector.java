@@ -87,6 +87,8 @@ public class RenameDetector {
 	/** Similarity score required to pair an add/delete as a rename. */
 	private int renameScore = 60;
 
+	private String followPath = "";
+
 	/**
 	 * Similarity score required to keep modified file pairs together. Any
 	 * modified file pairs with a similarity score below this will be broken
@@ -223,6 +225,22 @@ public class RenameDetector {
 			return overRenameLimit;
 		int cnt = Math.max(added.size(), deleted.size());
 		return getRenameLimit() != 0 && getRenameLimit() < cnt;
+	}
+
+	/**
+	 * Get follow path
+	 * @return follow path
+	 */
+	public String getFollowPath() {
+		return followPath;
+	}
+
+	/**
+	 * Set path to follow path.
+	 * @param path follow path
+	 */
+	public void setFollowPath(String path) {
+		followPath = path;
 	}
 
 	/**
@@ -493,6 +511,7 @@ public class RenameDetector {
 
 			d = new SimilarityRenameDetector(reader, deleted, added);
 			d.setRenameScore(getRenameScore());
+			d.setFollowPath(getFollowPath());
 			d.compute(pm);
 			overRenameLimit |= d.isTableOverflow();
 			deleted = d.getLeftOverSources();

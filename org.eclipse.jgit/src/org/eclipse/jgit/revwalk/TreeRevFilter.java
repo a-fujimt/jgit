@@ -252,6 +252,7 @@ public class TreeRevFilter extends RevFilter {
 		List<DiffEntry> files = DiffEntry.scan(tw);
 		RenameDetector rd = new RenameDetector(tw.getObjectReader(), cfg);
 		rd.addAll(files);
+		rd.setFollowPath(oldFilter.getPath());
 		files = rd.compute();
 
 		TreeFilter newFilter = oldFilter;
