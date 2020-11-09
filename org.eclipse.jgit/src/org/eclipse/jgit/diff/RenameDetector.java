@@ -89,6 +89,8 @@ public class RenameDetector {
 
 	private String followPath = "";
 
+	private boolean isUseAst = true;
+
 	/**
 	 * Similarity score required to keep modified file pairs together. Any
 	 * modified file pairs with a similarity score below this will be broken
@@ -241,6 +243,22 @@ public class RenameDetector {
 	 */
 	public void setFollowPath(String path) {
 		followPath = path;
+	}
+
+	/**
+	 * Is use AST for to calculate similarity.
+	 * @return if true, use AST
+	 */
+	public boolean isUseAst() {
+		return isUseAst;
+	}
+
+	/**
+	 * Use AST for to calculate similarity.
+	 * @param useAst if true, use AST
+	 */
+	public void setUseAst(boolean useAst) {
+		isUseAst = useAst;
 	}
 
 	/**
@@ -512,6 +530,7 @@ public class RenameDetector {
 			d = new SimilarityRenameDetector(reader, deleted, added);
 			d.setRenameScore(getRenameScore());
 			d.setFollowPath(getFollowPath());
+			d.setUseAst(isUseAst());
 			d.compute(pm);
 			overRenameLimit |= d.isTableOverflow();
 			deleted = d.getLeftOverSources();

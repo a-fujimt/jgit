@@ -83,6 +83,9 @@ class SimilarityRenameDetector {
 	/** Path to follow file */
 	private String followPath = "";
 
+	/** Is use AST to calculate similarity */
+	private boolean isUseAst = true;
+
 	/** Set if any {@link SimilarityIndex.TableFullException} occurs. */
 	private boolean tableOverflow;
 
@@ -101,6 +104,10 @@ class SimilarityRenameDetector {
 
 	void setFollowPath(String path) {
 		followPath = path;
+	}
+
+	public void setUseAst(boolean useAst) {
+		isUseAst = useAst;
 	}
 
 	void compute(ProgressMonitor pm) throws IOException, CancelledException {
@@ -267,8 +274,10 @@ class SimilarityRenameDetector {
 
 				if (s == null) {
 					try {
-						s = hash(OLD, srcEnt);  // 不要．hash()の呼び出しがなくなるとmavenのプラグインに怒られるので消せない
-						s = generate(OLD, srcEnt);
+						if (isUseAst)
+							s = generate(OLD, srcEnt);
+						else
+							s = hash(OLD, srcEnt);
 					} catch (TableFullException tableFull) {
 						tableOverflow = true;
 						continue SRC;
@@ -277,7 +286,10 @@ class SimilarityRenameDetector {
 
 				SimilarityIndex d;
 				try {
-					d = generate(NEW, dstEnt);
+					if (isUseAst)
+						d = generate(NEW, dstEnt);
+					else
+						d = hash(NEW, dstEnt);
 				} catch (TableFullException tableFull) {
 					if (dstTooLarge == null)
 						dstTooLarge = new BitSet(dsts.size());
