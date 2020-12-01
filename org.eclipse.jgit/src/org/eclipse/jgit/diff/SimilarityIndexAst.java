@@ -3,6 +3,7 @@ package org.eclipse.jgit.diff;
 import com.github.gumtreediff.actions.EditScript;
 import com.github.gumtreediff.actions.EditScriptGenerator;
 import com.github.gumtreediff.actions.SimplifiedChawatheScriptGenerator;
+import com.github.gumtreediff.actions.model.*;
 import com.github.gumtreediff.client.Run;
 import com.github.gumtreediff.gen.TreeGenerator;
 import com.github.gumtreediff.gen.TreeGenerators;
@@ -50,7 +51,16 @@ public class SimilarityIndexAst extends SimilarityIndex {
                 MappingStore mappings = defaultMatcher.match(tree, dstTree);
                 EditScriptGenerator editScriptGenerator = new SimplifiedChawatheScriptGenerator();
                 EditScript actions = editScriptGenerator.computeActions(mappings);
-                return (int) ((1 - ((double)actions.size() / (double)(tree.getMetrics().size + dstTree.getMetrics().size))) * maxScore);
+                int differences = 0;
+                for (Action action: actions) {
+                    if (action instanceof TreeDelete)
+                        differences += action.getNode().getMetrics().size;
+                    else if (action instanceof TreeInsert)
+                        differences += action.getNode().getMetrics().size;
+                    else
+                        differences += 1;
+                }
+                return (int) ((1 - ((double)differences / (double)(tree.getMetrics().size + dstTree.getMetrics().size))) * maxScore);
             }
         }
         return super.score(dst, maxScore);
