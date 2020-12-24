@@ -46,24 +46,109 @@
       <artifactId>slf4j-api</artifactId>
     </dependency>
 
-      <dependency>
-          <groupId>com.github.gumtreediff</groupId>
-          <artifactId>core</artifactId>
-          <!-- 左は間違い．下が正しい -> <version>3.0.0-SNAPSHOT</version> -->
-          <version>3.0.0-20200909.090157-1</version>
-      </dependency>
-      <dependency>
-          <groupId>com.github.gumtreediff</groupId>
-          <artifactId>client</artifactId>
-          <version>3.0.0-20200909.090157-1</version>
-      </dependency>
-      <dependency>
-          <groupId>com.github.gumtreediff</groupId>
-          <artifactId>gen.jdt</artifactId>
-          <version>3.0.0-20200909.090157-1</version>
-      </dependency>
+    <!-- 以下，GumTreeのライブラリ-->
+    <dependency>
+      <groupId>com.github.gumtreediff</groupId>
+      <artifactId>core</artifactId>
+      <!-- 左は間違い．下が正しい -> <version>3.0.0-SNAPSHOT</version> -->
+      <version>3.0.0-20200909.090157-1</version>
+    </dependency>
 
+    <dependency>
+      <groupId>com.github.gumtreediff</groupId>
+      <artifactId>client</artifactId>
+      <version>3.0.0-20200909.090157-1</version>
+    </dependency>
 
+    <dependency>
+      <groupId>com.github.gumtreediff</groupId>
+      <artifactId>gen.jdt</artifactId>
+      <version>3.0.0-20200909.090157-1</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.github.gumtreediff</groupId>
+      <artifactId>gen.javaparser</artifactId>
+      <version>3.0.0-20200909.090157-1</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.github.gumtreediff</groupId>
+      <artifactId>gen.antlr3</artifactId>
+      <version>3.0.0-20200909.090157-1</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.github.gumtreediff</groupId>
+      <artifactId>gen.antlr3-antlr</artifactId>
+      <version>3.0.0-20200909.090157-1</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.github.gumtreediff</groupId>
+      <artifactId>gen.antlr3-json</artifactId>
+      <version>3.0.0-20200909.090157-1</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.github.gumtreediff</groupId>
+      <artifactId>gen.antlr3-php</artifactId>
+      <version>3.0.0-20200909.090157-1</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.github.gumtreediff</groupId>
+      <artifactId>gen.antlr3-r</artifactId>
+      <version>3.0.0-20200909.090157-1</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.github.gumtreediff</groupId>
+      <artifactId>gen.antlr3-xml</artifactId>
+      <version>3.0.0-20200909.090157-1</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.github.gumtreediff</groupId>
+      <artifactId>gen.antlr4</artifactId>
+      <version>3.0.0-20200909.090157-1</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.github.gumtreediff</groupId>
+      <artifactId>gen.c</artifactId>
+      <version>3.0.0-20200909.090157-1</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.github.gumtreediff</groupId>
+      <artifactId>gen.css</artifactId>
+      <version>3.0.0-20200909.090157-1</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.github.gumtreediff</groupId>
+      <artifactId>gen.js</artifactId>
+      <version>3.0.0-20200909.090157-1</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.github.gumtreediff</groupId>
+      <artifactId>gen.python</artifactId>
+      <version>3.0.0-20200909.090157-1</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.github.gumtreediff</groupId>
+      <artifactId>gen.ruby</artifactId>
+      <version>3.0.0-20200909.090157-1</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.github.gumtreediff</groupId>
+      <artifactId>gen.srcml</artifactId>
+      <version>3.0.0-20200909.090157-1</version>
+    </dependency>
   </dependencies>
 
   <build>
