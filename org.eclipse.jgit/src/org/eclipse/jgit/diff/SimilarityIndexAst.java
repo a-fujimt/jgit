@@ -4,6 +4,7 @@ import com.github.gumtreediff.actions.ChawatheScriptGenerator;
 import com.github.gumtreediff.actions.EditScript;
 import com.github.gumtreediff.actions.EditScriptGenerator;
 import com.github.gumtreediff.client.Run;
+import com.github.gumtreediff.gen.SyntaxException;
 import com.github.gumtreediff.gen.TreeGenerator;
 import com.github.gumtreediff.gen.TreeGenerators;
 import com.github.gumtreediff.matchers.MappingStore;
@@ -35,7 +36,7 @@ public class SimilarityIndexAst extends SimilarityIndex {
         if (p != null) {
             try {
                 tree = p.generateFrom().string(contents).getRoot();
-            } catch (IOException e) {
+            } catch (IOException | SyntaxException e) {
                 e.printStackTrace();
             }
         }
