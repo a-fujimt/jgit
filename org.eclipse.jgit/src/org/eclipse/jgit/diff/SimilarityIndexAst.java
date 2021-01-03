@@ -36,8 +36,8 @@ public class SimilarityIndexAst extends SimilarityIndex {
         if (p != null) {
             try {
                 tree = p.generateFrom().string(contents).getRoot();
-            } catch (IOException | SyntaxException e) {
-                e.printStackTrace();
+            } catch (SyntaxException e) {
+                System.err.println("Syntax Error file: " + path);
             }
         }
     }
