@@ -102,11 +102,11 @@
       <version>3.0.0-20200909.090157-1</version>
     </dependency>
 
-    <dependency>
-      <groupId>com.github.gumtreediff</groupId>
-      <artifactId>gen.antlr3-xml</artifactId>
-      <version>3.0.0-20200909.090157-1</version>
-    </dependency>
+<!--    <dependency>-->
+<!--      <groupId>com.github.gumtreediff</groupId>-->
+<!--      <artifactId>gen.antlr3-xml</artifactId>-->
+<!--      <version>3.0.0-20200909.090157-1</version>-->
+<!--    </dependency>-->
 
     <dependency>
       <groupId>com.github.gumtreediff</groupId>
