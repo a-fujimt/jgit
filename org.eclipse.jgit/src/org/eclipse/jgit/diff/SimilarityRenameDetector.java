@@ -14,10 +14,11 @@ import static org.eclipse.jgit.diff.DiffEntry.Side.NEW;
 import static org.eclipse.jgit.diff.DiffEntry.Side.OLD;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.BitSet;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.eclipse.jgit.diff.SimilarityIndex.TableFullException;
@@ -207,6 +208,9 @@ class SimilarityRenameDetector {
 		long[] dstSizes = new long[dsts.size()];
 		BitSet dstTooLarge = null;
 
+		ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+		Map<Indexes, Future<Integer>> futureMap = new HashMap<>();
+
 		// Consider each pair of files, if the score is above the minimum
 		// threshold we need record that scoring in the matrix so we can
 		// later find the best matches.
@@ -218,8 +222,6 @@ class SimilarityRenameDetector {
 				pm.update(dsts.size());
 				continue;
 			}
-
-			SimilarityIndex s = null;
 
 			for (int dstIdx = 0; dstIdx < dsts.size(); dstIdx++) {
 				if (pm.isCancelled()) {
@@ -233,22 +235,30 @@ class SimilarityRenameDetector {
 				DiffEntry dstEnt = dsts.get(dstIdx);
 
 				if (!followPath.isEmpty() && !dstEnt.newPath.equals(followPath)) {
-					pm.update(1);
+					synchronized (this) {
+						pm.update(1);
+					}
 					continue;
 				}
 
 				if (!isFile(dstEnt.newMode)) {
-					pm.update(1);
+					synchronized (this) {
+						pm.update(1);
+					}
 					continue;
 				}
 
 				if (!RenameDetector.sameType(srcEnt.oldMode, dstEnt.newMode)) {
-					pm.update(1);
+					synchronized (this) {
+						pm.update(1);
+					}
 					continue;
 				}
 
 				if (dstTooLarge != null && dstTooLarge.get(dstIdx)) {
-					pm.update(1);
+					synchronized (this) {
+						pm.update(1);
+					}
 					continue;
 				}
 
@@ -268,20 +278,21 @@ class SimilarityRenameDetector {
 				long min = Math.min(srcSize, dstSize);
 				if (min * 100 / max < renameScore) {
 					// Cannot possibly match, as the file sizes are so different
-					pm.update(1);
+					synchronized (this) {
+						pm.update(1);
+					}
 					continue;
 				}
 
-				if (s == null) {
-					try {
-						if (isUseAst)
-							s = generate(OLD, srcEnt);
-						else
-							s = hash(OLD, srcEnt);
-					} catch (TableFullException tableFull) {
-						tableOverflow = true;
-						continue SRC;
-					}
+				SimilarityIndex s;
+				try {
+					if (isUseAst)
+						s = generate(OLD, srcEnt);
+					else
+						s = hash(OLD, srcEnt);
+				} catch (TableFullException tableFull) {
+					tableOverflow = true;
+					continue SRC;
 				}
 
 				SimilarityIndex d;
@@ -295,24 +306,49 @@ class SimilarityRenameDetector {
 						dstTooLarge = new BitSet(dsts.size());
 					dstTooLarge.set(dstIdx);
 					tableOverflow = true;
-					pm.update(1);
+					synchronized (this) {
+						pm.update(1);
+					}
 					continue;
 				}
 
-				int contentScore = s.score(d, 10000);
+				s.setDstIndex(d);
+				s.setMaxScore(10000);
+				Future<Integer> future = executorService.submit(s);
+				futureMap.put(new Indexes(srcIdx, dstIdx, srcEnt, dstEnt), future);
+			}
+		}
 
-				// nameScore returns a value between 0 and 100, but we want it
-				// to be in the same range as the content score. This allows it
-				// to be dropped into the pretty formula for the final score.
-				int nameScore = nameScore(srcEnt.oldPath, dstEnt.newPath) * 100;
+		executorService.shutdown();
 
-				int score = (contentScore * 99 + nameScore * 1) / 10000;
-
-				if (score < renameScore) {
+		for (Map.Entry<Indexes, Future<Integer>> entry: futureMap.entrySet()) {
+			int srcIdx = entry.getKey().getSrcIndex();
+			int dstIdx = entry.getKey().getDstIndex();
+			int contentScore;
+			try {
+				contentScore = entry.getValue().get();
+			} catch (InterruptedException | ExecutionException e) {
+				e.printStackTrace();
+				synchronized (this) {
 					pm.update(1);
-					continue;
 				}
+				continue;
+			}
 
+			// nameScore returns a value between 0 and 100, but we want it
+			// to be in the same range as the content score. This allows it
+			// to be dropped into the pretty formula for the final score.
+			int nameScore = nameScore(entry.getKey().getSrcEnt().oldPath, entry.getKey().getDstEnt().newPath) * 100;
+
+			int score = (contentScore * 99 + nameScore * 1) / 10000;
+			if (score < renameScore) {
+				synchronized (this) {
+					pm.update(1);
+				}
+				continue;
+			}
+
+			synchronized (this) {
 				matrix[mNext++] = encode(score, srcIdx, dstIdx);
 				pm.update(1);
 			}
@@ -423,5 +459,35 @@ class SimilarityRenameDetector {
 
 	private static boolean isFile(FileMode mode) {
 		return (mode.getBits() & FileMode.TYPE_MASK) == FileMode.TYPE_FILE;
+	}
+
+	private class Indexes {
+		private final int srcIndex;
+		private final int dstIndex;
+		private final DiffEntry srcEnt;
+		private final DiffEntry dstEnt;
+
+		Indexes(int srcIndex, int dstIndex, DiffEntry srcEnt, DiffEntry dstEnt) {
+			this.srcIndex = srcIndex;
+			this.dstIndex = dstIndex;
+			this.srcEnt = srcEnt;
+			this.dstEnt = dstEnt;
+		}
+
+		public int getSrcIndex() {
+			return srcIndex;
+		}
+
+		public int getDstIndex() {
+			return dstIndex;
+		}
+
+		public DiffEntry getSrcEnt() {
+			return srcEnt;
+		}
+
+		public DiffEntry getDstEnt() {
+			return dstEnt;
+		}
 	}
 }

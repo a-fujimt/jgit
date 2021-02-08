@@ -56,4 +56,9 @@ public class SimilarityIndexAst extends SimilarityIndex {
         }
         return super.score(dst, maxScore);
     }
+
+    @Override
+    public Integer call() throws Exception {
+        return this.score(dst, maxScore);
+    }
 }

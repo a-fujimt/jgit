@@ -14,6 +14,7 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.concurrent.Callable;
 
 import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.lib.ObjectLoader;
@@ -34,7 +35,7 @@ import org.eclipse.jgit.lib.ObjectStream;
  *
  * @since 4.0
  */
-public class SimilarityIndex {
+public class SimilarityIndex implements Callable<Integer> {
 	/** A special {@link TableFullException} used in place of OutOfMemoryError. */
 	public static final TableFullException
 			TABLE_FULL_OUT_OF_MEMORY = new TableFullException();
@@ -75,6 +76,11 @@ public class SimilarityIndex {
 
 	/** {@code idHash.length == 1 << idHashBits}. */
 	private int idHashBits;
+
+	/** for implements callable interface to give dst similarity index*/
+	protected SimilarityIndex dst;
+	/** for implements callable interface to give maxScore*/
+	protected int maxScore;
 
 	/**
 	 * Create a new similarity index for the given object
@@ -385,6 +391,35 @@ public class SimilarityIndex {
 
 	private static long countOf(long v) {
 		return v & MAX_COUNT;
+	}
+
+	/**
+	 * Set dst similarity index.
+	 * @param dst
+	 *            the other index
+	 */
+	public void setDstIndex(SimilarityIndex dst) {
+		this.dst = dst;
+	}
+
+	/**
+	 * Set max score.
+	 * @param maxScore
+	 *            the score representing a 100% match
+	 */
+	public void setMaxScore(int maxScore) {
+		this.maxScore = maxScore;
+	}
+
+	/**
+	 * Implement for callable interface
+	 * Compute the similarity score between this index and another.
+	 * @return score
+	 * @throws Exception exception
+	 */
+	@Override
+	public Integer call() throws Exception {
+		return this.score(dst, maxScore);
 	}
 
 	/** Thrown by {@code create()} when file is too large. */
