@@ -10,7 +10,7 @@ import com.github.gumtreediff.gen.TreeGenerators;
 import com.github.gumtreediff.matchers.MappingStore;
 import com.github.gumtreediff.matchers.Matcher;
 import com.github.gumtreediff.matchers.Matchers;
-import com.github.gumtreediff.tree.ITree;
+import com.github.gumtreediff.tree.Tree;
 import org.eclipse.jgit.lib.ObjectLoader;
 
 import java.io.IOException;
@@ -20,7 +20,7 @@ import java.io.IOException;
  */
 public class SimilarityIndexAst extends SimilarityIndex {
 
-    private ITree tree;
+    private Tree tree;
 
     SimilarityIndexAst() {
         Run.initGenerators();
@@ -46,7 +46,7 @@ public class SimilarityIndexAst extends SimilarityIndex {
     public int score(SimilarityIndex dst, int maxScore) {
         if (dst instanceof SimilarityIndexAst) {
             if (tree != null && ((SimilarityIndexAst) dst).tree != null) {
-                ITree dstTree = ((SimilarityIndexAst) dst).tree;
+                Tree dstTree = ((SimilarityIndexAst) dst).tree;
                 Matcher defaultMatcher = Matchers.getInstance().getMatcher();
                 MappingStore mappings = defaultMatcher.match(tree, dstTree);
                 EditScriptGenerator editScriptGenerator = new ChawatheScriptGenerator();
