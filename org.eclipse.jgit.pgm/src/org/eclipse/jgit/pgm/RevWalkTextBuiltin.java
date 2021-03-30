@@ -117,6 +117,9 @@ abstract class RevWalkTextBuiltin extends TextBuiltin {
 	@Option(name = "--oneline")
 	boolean oneline = false;
 
+	@Option(name = "-Mscore")
+	int renameScore = 60;
+
 	/** {@inheritDoc} */
 	@Override
 	protected void run() throws Exception {
@@ -126,7 +129,7 @@ abstract class RevWalkTextBuiltin extends TextBuiltin {
 
 		if (pathFilter == TreeFilter.ALL) {
 			if (followPath != null)
-				walk.setTreeFilter(FollowFilter.create(followPath,
+				walk.setTreeFilter(FollowFilter.create(followPath, renameScore,
 						db.getConfig().get(DiffConfig.KEY)));
 		} else if (pathFilter != TreeFilter.ALL) {
 			walk.setTreeFilter(AndTreeFilter.create(pathFilter,
