@@ -211,7 +211,8 @@ public class TreeRevFilter extends RevFilter {
 				// "empty tree root" and thus their history is not relevant.
 				// Cut our grandparents to be an empty list.
 				//
-				pList[i].parents = RevCommit.NO_PARENTS;
+				// TODO: fix this comment out
+				// pList[i].parents = RevCommit.NO_PARENTS;
 			}
 
 			// We have an interesting difference relative to this parent.
@@ -252,7 +253,7 @@ public class TreeRevFilter extends RevFilter {
 		List<DiffEntry> files = DiffEntry.scan(tw);
 		RenameDetector rd = new RenameDetector(tw.getObjectReader(), cfg);
 		rd.addAll(files);
-		rd.setFollowPath(oldFilter.getPath());
+		rd.setRenameScore(oldFilter.getRenameScore());
 		files = rd.compute();
 
 		TreeFilter newFilter = oldFilter;
