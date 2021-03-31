@@ -404,6 +404,15 @@ public class DiffFormatter implements AutoCloseable {
 	}
 
 	/**
+	 * Set the following file path.
+	 *
+	 * @return path to follow
+	 */
+	public String getFollowPath() {
+		return followPath;
+	}
+
+	/**
 	 * Flush the underlying output stream of this formatter.
 	 *
 	 * @throws java.io.IOException
@@ -559,6 +568,13 @@ public class DiffFormatter implements AutoCloseable {
 		} else if (renameDetector != null)
 			files = detectRenames(files);
 
+		for (DiffEntry ent: files) {
+			if (ent.getChangeType() == RENAME || ent.getChangeType() == COPY) {
+				if (ent.getNewPath().equals(followPath))
+					followPath = ent.oldPath;
+			}
+		}
+
 		return files;
 	}
 
@@ -705,9 +721,12 @@ public class DiffFormatter implements AutoCloseable {
 				format(ent);
 				continue;
 			}
-			if (followPath.equals(ent.newPath)) {
+			if (followPath.equals(ent.oldPath)) {
 				format(ent);
-				followPath = ent.oldPath;
+				break;
+			}
+			if (ent.getChangeType() == ADD && followPath.equals(ent.newPath)) {
+				format(ent);
 				break;
 			}
 		}

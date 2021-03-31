@@ -342,7 +342,7 @@ class Log extends RevWalkTextBuiltin {
 		final RevTree b = c.getTree();
 
 		if (showNameAndStatusOnly)
-			Diff.nameStatus(outw, diffFmt.scan(a, b));
+			Diff.nameStatus(outw, diffFmt.scan(a, b), diffFmt.getFollowPath());
 		else {
 			outw.flush();
 			diffFmt.format(a, b);
