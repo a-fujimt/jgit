@@ -953,8 +953,16 @@ public class DiffFormatter implements AutoCloseable {
 	 */
 	protected void writeLine(final char prefix, final RawText text,
 			final int cur) throws IOException {
+		String color = "";
+		if (prefix == '-')
+			color = "\u001b[31m";
+		else if (prefix == '+')
+			color = "\u001b[32m";
+		out.write(color.getBytes());
 		out.write(prefix);
 		text.writeLine(out, cur);
+		if (prefix == '-' || prefix == '+')
+			out.write("\u001b[00m".getBytes());
 		out.write('\n');
 	}
 
@@ -1143,6 +1151,7 @@ public class DiffFormatter implements AutoCloseable {
 			o.write('\n');
 		}
 
+		o.write("\u001b[1m".getBytes());
 		switch (type) {
 		case ADD:
 			o.write(encodeASCII("new file mode ")); //$NON-NLS-1$
@@ -1186,6 +1195,7 @@ public class DiffFormatter implements AutoCloseable {
 			}
 			break;
 		}
+		o.write("\u001b[0m".getBytes());
 
 		if (ent.getOldId() != null && !ent.getOldId().equals(ent.getNewId())) {
 			formatIndexLine(o, ent);
@@ -1223,6 +1233,7 @@ public class DiffFormatter implements AutoCloseable {
 		final String oldp;
 		final String newp;
 
+		o.write("\u001b[1m".getBytes());
 		switch (ent.getChangeType()) {
 		case ADD:
 			oldp = DiffEntry.DEV_NULL;
@@ -1242,6 +1253,7 @@ public class DiffFormatter implements AutoCloseable {
 
 		o.write(encode("--- " + oldp + "\n")); //$NON-NLS-1$ //$NON-NLS-2$
 		o.write(encode("+++ " + newp + "\n")); //$NON-NLS-1$ //$NON-NLS-2$
+		o.write("\u001b[0m".getBytes());
 	}
 
 	private int findCombinedEnd(List<Edit> edits, int i) {
