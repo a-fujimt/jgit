@@ -114,6 +114,8 @@ public class DiffFormatter implements AutoCloseable {
 
 	private Boolean quotePaths;
 
+	private String followPath = "";
+
 	/**
 	 * Create a new formatter with a default level of context.
 	 *
@@ -392,6 +394,25 @@ public class DiffFormatter implements AutoCloseable {
 	}
 
 	/**
+	 * Set the following file path.
+	 *
+	 * @param path
+	 *            path to follow
+	 */
+	public void setFollowPath(String path) {
+		this.followPath = path != null ? path : "";
+	}
+
+	/**
+	 * Set the following file path.
+	 *
+	 * @return path to follow
+	 */
+	public String getFollowPath() {
+		return followPath;
+	}
+
+	/**
 	 * Flush the underlying output stream of this formatter.
 	 *
 	 * @throws java.io.IOException
@@ -547,6 +568,13 @@ public class DiffFormatter implements AutoCloseable {
 		} else if (renameDetector != null)
 			files = detectRenames(files);
 
+		for (DiffEntry ent: files) {
+			if (ent.getChangeType() == RENAME || ent.getChangeType() == COPY) {
+				if (ent.getNewPath().equals(followPath))
+					followPath = ent.oldPath;
+			}
+		}
+
 		return files;
 	}
 
@@ -576,6 +604,7 @@ public class DiffFormatter implements AutoCloseable {
 			throws IOException {
 		renameDetector.reset();
 		renameDetector.addAll(files);
+		renameDetector.setFollowPath(followPath);
 		try {
 			return renameDetector.compute(reader, progressMonitor);
 		} catch (CancelledException e) {
@@ -599,7 +628,7 @@ public class DiffFormatter implements AutoCloseable {
 		String oldPath = ((FollowFilter) pathFilter).getPath();
 		for (DiffEntry ent : files) {
 			if (isRename(ent) && ent.getNewPath().equals(oldPath)) {
-				pathFilter = FollowFilter.create(ent.getOldPath(), diffCfg);
+				pathFilter = FollowFilter.create(ent.getOldPath(), ((FollowFilter) pathFilter).getRenameScore(), diffCfg);
 				return Collections.singletonList(ent);
 			}
 		}
@@ -687,8 +716,20 @@ public class DiffFormatter implements AutoCloseable {
 	 *             be written to.
 	 */
 	public void format(List<? extends DiffEntry> entries) throws IOException {
-		for (DiffEntry ent : entries)
-			format(ent);
+		for (DiffEntry ent : entries) {
+			if (followPath.isEmpty()) {
+				format(ent);
+				continue;
+			}
+			if (followPath.equals(ent.oldPath)) {
+				format(ent);
+				break;
+			}
+			if (ent.getChangeType() == ADD && followPath.equals(ent.newPath)) {
+				format(ent);
+				break;
+			}
+		}
 	}
 
 	/**
@@ -931,8 +972,16 @@ public class DiffFormatter implements AutoCloseable {
 	 */
 	protected void writeLine(final char prefix, final RawText text,
 			final int cur) throws IOException {
+		String color = "";
+		if (prefix == '-')
+			color = "\u001b[31m";
+		else if (prefix == '+')
+			color = "\u001b[32m";
+		out.write(color.getBytes());
 		out.write(prefix);
 		text.writeLine(out, cur);
+		if (prefix == '-' || prefix == '+')
+			out.write("\u001b[00m".getBytes());
 		out.write('\n');
 	}
 
@@ -1121,6 +1170,7 @@ public class DiffFormatter implements AutoCloseable {
 			o.write('\n');
 		}
 
+		o.write("\u001b[1m".getBytes());
 		switch (type) {
 		case ADD:
 			o.write(encodeASCII("new file mode ")); //$NON-NLS-1$
@@ -1164,6 +1214,7 @@ public class DiffFormatter implements AutoCloseable {
 			}
 			break;
 		}
+		o.write("\u001b[0m".getBytes());
 
 		if (ent.getOldId() != null && !ent.getOldId().equals(ent.getNewId())) {
 			formatIndexLine(o, ent);
@@ -1201,6 +1252,7 @@ public class DiffFormatter implements AutoCloseable {
 		final String oldp;
 		final String newp;
 
+		o.write("\u001b[1m".getBytes());
 		switch (ent.getChangeType()) {
 		case ADD:
 			oldp = DiffEntry.DEV_NULL;
@@ -1220,6 +1272,7 @@ public class DiffFormatter implements AutoCloseable {
 
 		o.write(encode("--- " + oldp + "\n")); //$NON-NLS-1$ //$NON-NLS-2$
 		o.write(encode("+++ " + newp + "\n")); //$NON-NLS-1$ //$NON-NLS-2$
+		o.write("\u001b[0m".getBytes());
 	}
 
 	private int findCombinedEnd(List<Edit> edits, int i) {

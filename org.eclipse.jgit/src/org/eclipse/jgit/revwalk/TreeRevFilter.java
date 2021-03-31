@@ -254,6 +254,7 @@ public class TreeRevFilter extends RevFilter {
 		RenameDetector rd = new RenameDetector(tw.getObjectReader(), cfg);
 		rd.addAll(files);
 		rd.setRenameScore(oldFilter.getRenameScore());
+		rd.setFollowPath(oldFilter.getPath());
 		files = rd.compute();
 
 		TreeFilter newFilter = oldFilter;

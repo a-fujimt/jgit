@@ -86,7 +86,7 @@ abstract class RevWalkTextBuiltin extends TextBuiltin {
 	}
 
 	@Option(name = "--follow", metaVar = "metaVar_path")
-	private String followPath;
+	String followPath;
 
 	@Argument(index = 0, metaVar = "metaVar_commitish")
 	private List<RevCommit> commits = new ArrayList<>();

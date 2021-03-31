@@ -171,6 +171,9 @@ class Log extends RevWalkTextBuiltin {
 				RenameDetector rd = diffFmt.getRenameDetector();
 				rd.setRenameLimit(renameLimit.intValue());
 			}
+			if (diffFmt.getRenameDetector() != null)
+				diffFmt.getRenameDetector().setRenameScore(renameScore);
+			diffFmt.setFollowPath(followPath);
 
 			if (!noStandardNotes || !additionalNoteRefs.isEmpty()) {
 				createWalk();
@@ -339,7 +342,7 @@ class Log extends RevWalkTextBuiltin {
 		final RevTree b = c.getTree();
 
 		if (showNameAndStatusOnly)
-			Diff.nameStatus(outw, diffFmt.scan(a, b));
+			Diff.nameStatus(outw, diffFmt.scan(a, b), diffFmt.getFollowPath());
 		else {
 			outw.flush();
 			diffFmt.format(a, b);
