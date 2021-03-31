@@ -171,6 +171,9 @@ class Log extends RevWalkTextBuiltin {
 				RenameDetector rd = diffFmt.getRenameDetector();
 				rd.setRenameLimit(renameLimit.intValue());
 			}
+			if (diffFmt.getRenameDetector() != null)
+				diffFmt.getRenameDetector().setRenameScore(renameScore);
+			diffFmt.setFollowPath(followPath);
 
 			if (!noStandardNotes || !additionalNoteRefs.isEmpty()) {
 				createWalk();

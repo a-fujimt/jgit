@@ -80,6 +80,9 @@ class SimilarityRenameDetector {
 	/** Score a pair must exceed to be considered a rename. */
 	private int renameScore = 60;
 
+	/** Path to follow file */
+	private String followPath = "";
+
 	/** Set if any {@link SimilarityIndex.TableFullException} occurs. */
 	private boolean tableOverflow;
 
@@ -94,6 +97,10 @@ class SimilarityRenameDetector {
 
 	void setRenameScore(int score) {
 		renameScore = score;
+	}
+
+	void setFollowPath(String path) {
+		followPath = path;
 	}
 
 	void compute(ProgressMonitor pm) throws IOException, CancelledException {
@@ -217,6 +224,11 @@ class SimilarityRenameDetector {
 				}
 
 				DiffEntry dstEnt = dsts.get(dstIdx);
+
+				if (!followPath.isEmpty() && !dstEnt.newPath.equals(followPath)) {
+					pm.update(1);
+					continue;
+				}
 
 				if (!isFile(dstEnt.newMode)) {
 					pm.update(1);

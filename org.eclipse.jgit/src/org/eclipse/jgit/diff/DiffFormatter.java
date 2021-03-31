@@ -114,6 +114,8 @@ public class DiffFormatter implements AutoCloseable {
 
 	private Boolean quotePaths;
 
+	private String followPath = "";
+
 	/**
 	 * Create a new formatter with a default level of context.
 	 *
@@ -392,6 +394,16 @@ public class DiffFormatter implements AutoCloseable {
 	}
 
 	/**
+	 * Set the following file path.
+	 *
+	 * @param path
+	 *            path to follow
+	 */
+	public void setFollowPath(String path) {
+		this.followPath = path != null ? path : "";
+	}
+
+	/**
 	 * Flush the underlying output stream of this formatter.
 	 *
 	 * @throws java.io.IOException
@@ -546,10 +558,6 @@ public class DiffFormatter implements AutoCloseable {
 
 		} else if (renameDetector != null)
 			files = detectRenames(files);
-		else {
-			setDetectRenames(true);
-			files = detectRenames(files);
-		}
 
 		return files;
 	}
@@ -580,6 +588,7 @@ public class DiffFormatter implements AutoCloseable {
 			throws IOException {
 		renameDetector.reset();
 		renameDetector.addAll(files);
+		renameDetector.setFollowPath(followPath);
 		try {
 			return renameDetector.compute(reader, progressMonitor);
 		} catch (CancelledException e) {
@@ -603,7 +612,7 @@ public class DiffFormatter implements AutoCloseable {
 		String oldPath = ((FollowFilter) pathFilter).getPath();
 		for (DiffEntry ent : files) {
 			if (isRename(ent) && ent.getNewPath().equals(oldPath)) {
-				pathFilter = FollowFilter.create(ent.getOldPath(), diffCfg);
+				pathFilter = FollowFilter.create(ent.getOldPath(), ((FollowFilter) pathFilter).getRenameScore(), diffCfg);
 				return Collections.singletonList(ent);
 			}
 		}
@@ -691,8 +700,17 @@ public class DiffFormatter implements AutoCloseable {
 	 *             be written to.
 	 */
 	public void format(List<? extends DiffEntry> entries) throws IOException {
-		for (DiffEntry ent : entries)
-			format(ent);
+		for (DiffEntry ent : entries) {
+			if (followPath.isEmpty()) {
+				format(ent);
+				continue;
+			}
+			if (followPath.equals(ent.newPath)) {
+				format(ent);
+				followPath = ent.oldPath;
+				break;
+			}
+		}
 	}
 
 	/**
