@@ -57,13 +57,47 @@ public class FollowFilter extends TreeFilter {
 		return new FollowFilter(PathFilter.create(path), cfg);
 	}
 
+	/**
+	 * Create a new tree filter for a user supplied path.
+	 * <p>
+	 * Path strings are relative to the root of the repository. If the user's
+	 * input should be assumed relative to a subdirectory of the repository the
+	 * caller must prepend the subdirectory's path prior to creating the filter.
+	 * <p>
+	 * Path strings use '/' to delimit directories on all platforms.
+	 *
+	 * @param path
+	 *            the path to filter on. Must not be the empty string. All
+	 *            trailing '/' characters will be trimmed before string's length
+	 *            is checked or is used as part of the constructed filter.
+	 * @param renameScore
+	 * 	          the threshold of rename. If calculated score is larger than this,
+	 * 	          the two files are regarded to rename.
+	 * @param cfg
+	 *            diff config specifying rename detection options.
+	 * @return a new filter for the requested path.
+	 * @throws java.lang.IllegalArgumentException
+	 *             the path supplied was the empty string.
+	 * @since 3.0
+	 */
+	public static FollowFilter create(String path, int renameScore, DiffConfig cfg) {
+		return new FollowFilter(PathFilter.create(path), renameScore, cfg);
+	}
+
 	private final PathFilter path;
 	final DiffConfig cfg;
+	private int renameScore = 60;
 
 	private RenameCallback renameCallback;
 
 	FollowFilter(PathFilter path, DiffConfig cfg) {
 		this.path = path;
+		this.cfg = cfg;
+	}
+
+	FollowFilter(PathFilter path, int renameScore, DiffConfig cfg) {
+		this.path = path;
+		this.renameScore = renameScore;
 		this.cfg = cfg;
 	}
 
@@ -124,5 +158,14 @@ public class FollowFilter extends TreeFilter {
 	 */
 	public void setRenameCallback(RenameCallback callback) {
 		renameCallback = callback;
+	}
+
+	/**
+	 * Get rename score.
+	 *
+	 * @return rename score
+	 */
+	public int getRenameScore() {
+		return renameScore;
 	}
 }

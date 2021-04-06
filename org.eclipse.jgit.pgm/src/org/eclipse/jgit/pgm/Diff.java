@@ -197,27 +197,43 @@ class Diff extends TextBuiltin {
 	static void nameStatus(ThrowingPrintWriter out, List<DiffEntry> files)
 			throws IOException {
 		for (DiffEntry ent : files) {
-			switch (ent.getChangeType()) {
-			case ADD:
-				out.println("A\t" + ent.getNewPath()); //$NON-NLS-1$
-				break;
-			case DELETE:
-				out.println("D\t" + ent.getOldPath()); //$NON-NLS-1$
-				break;
-			case MODIFY:
-				out.println("M\t" + ent.getNewPath()); //$NON-NLS-1$
-				break;
-			case COPY:
-				out.format("C%1$03d\t%2$s\t%3$s", valueOf(ent.getScore()), // //$NON-NLS-1$
-						ent.getOldPath(), ent.getNewPath());
-				out.println();
-				break;
-			case RENAME:
-				out.format("R%1$03d\t%2$s\t%3$s", valueOf(ent.getScore()), // //$NON-NLS-1$
-						ent.getOldPath(), ent.getNewPath());
-				out.println();
-				break;
-			}
+			outputStatus(out, ent);
+		}
+	}
+
+	private static void outputStatus(ThrowingPrintWriter out, DiffEntry entry) throws IOException {
+		switch (entry.getChangeType()) {
+		case ADD:
+			out.println("A\t" + entry.getNewPath()); //$NON-NLS-1$
+			break;
+		case DELETE:
+			out.println("D\t" + entry.getOldPath()); //$NON-NLS-1$
+			break;
+		case MODIFY:
+			out.println("M\t" + entry.getNewPath()); //$NON-NLS-1$
+			break;
+		case COPY:
+			out.format("C%1$03d\t%2$s\t%3$s", valueOf(entry.getScore()), // //$NON-NLS-1$
+					entry.getOldPath(), entry.getNewPath());
+			out.println();
+			break;
+		case RENAME:
+			out.format("R%1$03d\t%2$s\t%3$s", valueOf(entry.getScore()), // //$NON-NLS-1$
+					entry.getOldPath(), entry.getNewPath());
+			out.println();
+			break;
+		}
+	}
+
+	static void nameStatus(ThrowingPrintWriter out, List<DiffEntry> files, String followPath)
+			throws IOException {
+		if (followPath.isEmpty())
+			nameStatus(out, files);
+		for (DiffEntry ent : files) {
+			if (ent.getOldPath().equals(followPath))
+				outputStatus(out, ent);
+			if (ent.getChangeType() == DiffEntry.ChangeType.ADD && ent.getNewPath().equals(followPath))
+				outputStatus(out, ent);
 		}
 	}
 }
