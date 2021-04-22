@@ -30,6 +30,8 @@ public class SimilarityIndexAst extends SimilarityIndex {
         super.hash(obj);
         super.sort();
 
+        if (obj.isLarge())
+            return;
         String path = side == DiffEntry.Side.NEW ? entry.getNewPath() : entry.getOldPath();
         String contents = new String(obj.getCachedBytes());
         TreeGenerator p = TreeGenerators.getInstance().get(path);
