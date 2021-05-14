@@ -149,6 +149,11 @@
 <!--      <artifactId>gen.srcml</artifactId>-->
 <!--      <version>3.0.0-20200909.090157-1</version>-->
 <!--    </dependency>-->
+    <dependency>
+      <groupId>com.fujimotoakira</groupId>
+      <artifactId>gen.mjava</artifactId>
+      <version>1.0-SNAPSHOT</version>
+    </dependency>
   </dependencies>
 
   <build>
