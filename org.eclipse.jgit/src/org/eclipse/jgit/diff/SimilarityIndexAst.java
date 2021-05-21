@@ -6,7 +6,6 @@ import com.github.gumtreediff.actions.EditScriptGenerator;
 import com.github.gumtreediff.client.Run;
 import com.github.gumtreediff.gen.SyntaxException;
 import com.github.gumtreediff.gen.TreeGenerator;
-import com.github.gumtreediff.gen.TreeGenerators;
 import com.github.gumtreediff.matchers.MappingStore;
 import com.github.gumtreediff.matchers.Matcher;
 import com.github.gumtreediff.matchers.Matchers;
@@ -14,6 +13,7 @@ import com.github.gumtreediff.tree.Tree;
 import org.eclipse.jgit.lib.ObjectLoader;
 
 import java.io.IOException;
+import com.fujimotoakira.gen.mjava.*;
 
 /**
  * Score similarity
@@ -34,7 +34,7 @@ public class SimilarityIndexAst extends SimilarityIndex {
             return;
         String path = side == DiffEntry.Side.NEW ? entry.getNewPath() : entry.getOldPath();
         String contents = new String(obj.getCachedBytes());
-        TreeGenerator p = TreeGenerators.getInstance().get(path);
+        TreeGenerator p = new MJdtTreeGenerator();
         if (p != null) {
             try {
                 tree = p.generateFrom().string(contents).getRoot();
